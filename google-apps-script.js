@@ -86,11 +86,34 @@ function doPost(e) {
     const timestamp = new Date().toISOString();
     const userAgent = data.userAgent || 'Unknown';
     
-    // Find existing row for this user
+    // Find existing row for this user (most recent occurrence)
     const existingRowIndex = findUserRow(sheet, data.userId);
     
-    if (data.eventType === 'restart' || existingRowIndex === -1) {
-      // Create new row for restart or first visit
+    if (data.eventType === 'restart') {
+      // ALWAYS create new row for restart - each restart is a new session
+      const newRowData = [
+        data.userId,                    // User ID
+        timestamp,                      // First Visit
+        '',                            // Survey Started (will be filled when survey starts)
+        '',                            // Survey Completed
+        userAgent,                     // Browser Info
+        '',                            // Final Results
+        '',                            // Top Party
+        '',                            // Top Party Score
+        '',                            // All Parties Scores
+        '',                            // Session Duration
+        data.totalQuestions || '',     // Total Questions
+        '',                            // Questions Answered
+        '',                            // Active Answers
+        '',                            // Completion Rate
+        '',                            // Early Finish
+        timestamp                      // Last Updated
+      ];
+      
+      sheet.appendRow(newRowData);
+      
+    } else if (existingRowIndex === -1) {
+      // Create new row for first visit (no restart, just new user)
       const newRowData = [
         data.userId,                    // User ID
         timestamp,                      // First Visit
@@ -113,7 +136,7 @@ function doPost(e) {
       sheet.appendRow(newRowData);
       
     } else {
-      // Update existing row
+      // Update existing row for ongoing session
       updateUserRow(sheet, existingRowIndex, data, timestamp);
     }
     
@@ -130,7 +153,7 @@ function doPost(e) {
 }
 
 /**
- * Find the row index for a specific user ID
+ * Find the row index for a specific user ID (returns the MOST RECENT occurrence)
  */
 function findUserRow(sheet, userId) {
   const lastRow = sheet.getLastRow();
@@ -138,7 +161,8 @@ function findUserRow(sheet, userId) {
   
   const userIds = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
   
-  for (let i = 0; i < userIds.length; i++) {
+  // Search backwards to find the most recent occurrence
+  for (let i = userIds.length - 1; i >= 0; i--) {
     if (userIds[i][0] === userId) {
       return i + 2; // +2 because getRange is 1-indexed and we started from row 2
     }
