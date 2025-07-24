@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volební kalkulačka 2025 - Parlamentní volby ČR</title>
-    <link rel="icon" type="image/png" href="/vk_fav_icon.png">
+    <link rel="icon" type="image/png" href="vk_fav_icon.png">
+    <link rel="shortcut icon" type="image/png" href="vk_fav_icon.png">
+    <link rel="apple-touch-icon" href="vk_fav_icon.png">
     <style>
         * {
             margin: 0;
@@ -351,6 +353,43 @@
             margin-bottom: 8px;
         }
 
+        /* Loading indicator styles */
+        .loading-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .loading-indicator.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -387,10 +426,29 @@
                 margin-left: 0;
                 margin-bottom: 10px;
             }
+
+            .loading-indicator {
+                top: 10px;
+                right: 10px;
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loading indicator -->
+    <div class="loading-indicator" id="loading-indicator">
+        <div class="spinner"></div>
+        <span>Ukládám data...</span>
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="loading-indicator" id="loading-indicator">
+        <div class="loading-spinner"></div>
+        <span id="loading-text">Ukládám data...</span>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>🗳️ Volební kalkulačka 2025</h1>
@@ -450,7 +508,7 @@
                 </div>
             </div>
         <div style="position: fixed; bottom: 10px; right: 20px; background: rgba(255,255,255,0.85); color: #555; padding: 6px 16px; border-radius: 20px; font-size: 0.95rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 9999;">
-            Verze aplikace: <strong>1.0.2</strong>
+            Verze aplikace: <strong>1.0.3</strong>
         </div>
         </div>
     </div>
