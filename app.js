@@ -137,9 +137,9 @@ function showQuestion(index) {
                 </div>
             </div>
             
-            ${index >= 4 ? `
+            ${index >= 9 ? `
                 <div class="early-finish-container">
-                    <button class="early-finish-button" onclick="showEarlyFinishConfirmation()">
+                    <button class="early-finish-button" onclick="showResults()">
                         📊 Zobrazit výsledky nyní
                     </button>
                     <div class="early-finish-note">
@@ -152,24 +152,6 @@ function showQuestion(index) {
     
     // Aktualizace navigačních tlačítek
     updateNavigationButtons();
-}
-
-// Show early finish confirmation
-function showEarlyFinishConfirmation() {
-    const answeredQuestions = getAnsweredQuestionsCount();
-    const totalQuestions = quizData.questions.length;
-    const completionRate = Math.round((answeredQuestions / totalQuestions) * 100);
-    
-    if (confirm(`Dokončit anketu nyní?\n\nZodpověděli jste ${answeredQuestions} z ${totalQuestions} otázek (${completionRate}%).\nVýsledky budou vypočítány na základě vašich dosavadních odpovědí.`)) {
-        showResults();
-    }
-}
-
-// Count how many questions have been answered (not neutral)
-function getAnsweredQuestionsCount() {
-    return userAnswers.slice(0, currentQuestionIndex + 1).filter(answer => 
-        answer && (answer.agreement !== 50 || answer.importance !== 50)
-    ).length;
 }
 
 // Aktualizace hodnoty slideru
@@ -287,7 +269,9 @@ function showResults() {
     const questionsAnswered = Math.min(currentQuestionIndex + 1, quizData.questions.length);
     const totalQuestions = quizData.questions.length;
     const completionRate = Math.round((questionsAnswered / totalQuestions) * 100);
-    const answeredQuestions = getAnsweredQuestionsCount();
+    const answeredQuestions = userAnswers.slice(0, questionsAnswered).filter(answer => 
+        answer && (answer.agreement !== 50 || answer.importance !== 50)
+    ).length;
     const isEarlyFinish = questionsAnswered < totalQuestions;
     
     // Calculate session duration
@@ -320,12 +304,6 @@ function showResults() {
             <div class="completion-note">
                 Výsledky jsou vypočítány na základě vašich dosavadních odpovědí. 
                 ${answeredQuestions >= 5 ? 'Máte dostatek odpovědí pro reprezentativní výsledky.' : 'Pro přesnější výsledky doporučujeme zodpovědět více otázek.'}
-            </div>
-            <div class="continue-survey-container">
-                <button class="continue-survey-button" onclick="continueSurvey()">
-                    📝 Pokračovat v anketě
-                </button>
-                <span class="continue-note">Můžete dokončit zbývající otázky pro přesnější výsledky</span>
             </div>
         </div>
     ` : `
@@ -365,28 +343,6 @@ function showResults() {
     
     // Scroll na začátek výsledků
     resultsSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-// Continue survey from results (for early finishers)
-function continueSurvey() {
-    // Hide results section
-    document.getElementById('results-section').style.display = 'none';
-    
-    // Show quiz section
-    document.getElementById('quiz-section').style.display = 'block';
-    
-    // Continue from where we left off
-    showQuestion(currentQuestionIndex);
-    updateProgress();
-    
-    // Track continue action (fire and forget)
-    trackEvent('survey_continue', {
-        fromQuestionIndex: currentQuestionIndex,
-        totalQuestions: quizData.questions.length
-    });
-    
-    // Scroll to quiz section
-    document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Restart ankety

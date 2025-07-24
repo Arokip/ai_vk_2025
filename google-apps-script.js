@@ -1,11 +1,10 @@
 /**
  * Google Apps Script for Volební kalkulačka 2025 - Survey Tracking
  * 
- * Tracks complete survey lifecycle including early finishes and continues:
+ * Tracks complete survey lifecycle including early finishes:
  * - Page loads and user sessions
  * - Survey starts and completions
- * - Early finishes with partial data
- * - Continue actions after early finish
+ * - Early finishes with partial data (minimum 10 questions)
  * - Detailed completion statistics
  * 
  * Instructions for setup:
@@ -57,7 +56,6 @@ function getOrCreateSpreadsheet() {
       'Active Answers',
       'Completion Rate (%)',
       'Early Finish',
-      'Continue Count',
       'Last Updated'
     ];
     
@@ -109,7 +107,6 @@ function doPost(e) {
         '',                            // Active Answers
         '',                            // Completion Rate
         '',                            // Early Finish
-        0,                             // Continue Count
         timestamp                      // Last Updated
       ];
       
@@ -167,8 +164,7 @@ function updateUserRow(sheet, rowIndex, data, timestamp) {
   const COL_ACTIVE_ANSWERS = 13;
   const COL_COMPLETION_RATE = 14;
   const COL_EARLY_FINISH = 15;
-  const COL_CONTINUE_COUNT = 16;
-  const COL_LAST_UPDATED = 17;
+  const COL_LAST_UPDATED = 16;
   
   switch (data.eventType) {
     case 'survey_start':
@@ -202,12 +198,6 @@ function updateUserRow(sheet, rowIndex, data, timestamp) {
       if (data.totalQuestions) {
         sheet.getRange(rowIndex, COL_TOTAL_QUESTIONS).setValue(data.totalQuestions);
       }
-      break;
-      
-    case 'survey_continue':
-      // Update continue count
-      const currentContinueCount = sheet.getRange(rowIndex, COL_CONTINUE_COUNT).getValue() || 0;
-      sheet.getRange(rowIndex, COL_CONTINUE_COUNT).setValue(currentContinueCount + 1);
       break;
   }
   
@@ -256,19 +246,19 @@ function getStats() {
     return { totalEntries: 0, lastUpdate: 'Never' };
   }
   
-  const data = sheet.getRange(2, 1, lastRow - 1, 17).getValues();
+  const data = sheet.getRange(2, 1, lastRow - 1, 16).getValues();
   
   const stats = {
     totalUsers: lastRow - 1,
     uniqueUsers: new Set(data.map(row => row[0])).size,
     surveysStarted: data.filter(row => row[2] && row[2] !== '').length, // Has Survey Started timestamp
     surveysCompleted: data.filter(row => row[3] && row[3] !== '').length, // Has Survey Completed timestamp
-    earlyFinishes: data.filter(row => row[14] === true).length, // Early Finish column
-    fullCompletions: data.filter(row => row[3] && row[3] !== '' && row[14] === false).length,
-    totalContinues: data.reduce((sum, row) => sum + (row[15] || 0), 0), // Continue Count column
+    earlyFinishes: data.filter(row => row[15] === true).length, // Early Finish column
+    fullCompletions: data.filter(row => row[3] && row[3] !== '' && row[15] === false).length,
+    totalContinues: 0, // Continue Count column removed
     averageQuestionsAnswered: 0,
     averageActiveAnswers: 0,
-    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[16])))).toISOString() // Last Updated column (now 17th, 0-indexed 16)
+    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[15])))).toISOString() // Last Updated column (now 16th, 0-indexed 15)
   };
   
   // Calculate averages for completed surveys
