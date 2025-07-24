@@ -443,6 +443,152 @@
                 height: 18px;
                 border-width: 2px;
             }
+
+            /* Early finish mobile responsiveness */
+            .early-finish-container {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .early-finish-button {
+                padding: 12px 18px;
+                font-size: 0.85rem;
+            }
+
+            .completion-stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .completion-rate, .answered-count {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .completion-info {
+                padding: 15px;
+            }
+
+            .continue-survey-button {
+                padding: 12px 18px;
+                font-size: 0.85rem;
+            }
+
+            .ai-disclosure-btn {
+                bottom: 15px;
+                left: 15px;
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
+        }
+
+        /* Early finish functionality */
+        .early-finish-container {
+            margin-top: 25px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+            background: rgba(102, 126, 234, 0.02);
+            border-radius: 8px;
+        }
+
+        .early-finish-button {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .early-finish-button:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .early-finish-note {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Completion info */
+        .completion-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .completion-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .completion-rate {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .answered-count {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .completion-note {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .continue-survey-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .continue-survey-button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .continue-survey-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        .continue-note {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            font-style: italic;
         }
 
         /* AI disclosure button */
@@ -676,7 +822,7 @@
                 </div>
             </div>
         <div style="position: fixed; bottom: 10px; right: 20px; background: rgba(255,255,255,0.85); color: #555; padding: 6px 16px; border-radius: 20px; font-size: 0.95rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 9999;">
-            Verze aplikace: <strong>1.0.7</strong>
+            Verze aplikace: <strong>1.0.8</strong>
         </div>
         </div>
     </div>

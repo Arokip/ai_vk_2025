@@ -136,11 +136,40 @@ function showQuestion(index) {
                     </div>
                 </div>
             </div>
+            
+            ${index >= 4 ? `
+                <div class="early-finish-container">
+                    <button class="early-finish-button" onclick="showEarlyFinishConfirmation()">
+                        📊 Zobrazit výsledky nyní
+                    </button>
+                    <div class="early-finish-note">
+                        Máte dostatek odpovědí pro smysluplné výsledky
+                    </div>
+                </div>
+            ` : ''}
         </div>
     `;
     
     // Aktualizace navigačních tlačítek
     updateNavigationButtons();
+}
+
+// Show early finish confirmation
+function showEarlyFinishConfirmation() {
+    const answeredQuestions = getAnsweredQuestionsCount();
+    const totalQuestions = quizData.questions.length;
+    const completionRate = Math.round((answeredQuestions / totalQuestions) * 100);
+    
+    if (confirm(`Dokončit anketu nyní?\n\nZodpověděli jste ${answeredQuestions} z ${totalQuestions} otázek (${completionRate}%).\nVýsledky budou vypočítány na základě vašich dosavadních odpovědí.`)) {
+        showResults();
+    }
+}
+
+// Count how many questions have been answered (not neutral)
+function getAnsweredQuestionsCount() {
+    return userAnswers.slice(0, currentQuestionIndex + 1).filter(answer => 
+        answer && (answer.agreement !== 50 || answer.importance !== 50)
+    ).length;
 }
 
 // Aktualizace hodnoty slideru
@@ -209,8 +238,11 @@ function calculatePartyMatches() {
         };
     });
     
+    // Only calculate for questions that have been seen (up to current index + 1)
+    const questionsToCalculate = Math.min(currentQuestionIndex + 1, quizData.questions.length);
+    
     // Výpočet skóre pro každou otázku
-    quizData.questions.forEach((question, questionIndex) => {
+    quizData.questions.slice(0, questionsToCalculate).forEach((question, questionIndex) => {
         const userAnswer = userAnswers[questionIndex];
         const importance = userAnswer.importance / 100; // Normalizace na 0-1
         
@@ -251,17 +283,26 @@ function showResults() {
     // Výpočet výsledků
     const results = calculatePartyMatches();
     
-    // Calculate session duration and completion rate
+    // Calculate completion statistics
+    const questionsAnswered = Math.min(currentQuestionIndex + 1, quizData.questions.length);
+    const totalQuestions = quizData.questions.length;
+    const completionRate = Math.round((questionsAnswered / totalQuestions) * 100);
+    const answeredQuestions = getAnsweredQuestionsCount();
+    const isEarlyFinish = questionsAnswered < totalQuestions;
+    
+    // Calculate session duration
     const sessionDuration = surveyStartTime ? 
         Math.round((new Date() - surveyStartTime) / 1000) : 0;
-    const completionRate = Math.round((currentQuestionIndex + 1) / quizData.questions.length * 100);
     
     // Track survey completion (fire and forget)
-    trackEvent('survey_complete', {
+    trackEvent(isEarlyFinish ? 'survey_early_finish' : 'survey_complete', {
         results: results,
         sessionDuration: sessionDuration,
-        totalQuestions: quizData.questions.length,
-        completionRate: completionRate
+        questionsAnswered: questionsAnswered,
+        answeredQuestions: answeredQuestions,
+        totalQuestions: totalQuestions,
+        completionRate: completionRate,
+        earlyFinish: isEarlyFinish
     });
     
     // Continue immediately without waiting for tracking
@@ -269,7 +310,33 @@ function showResults() {
     const resultsSection = document.getElementById('results-section');
     const resultsContainer = document.getElementById('results-container');
     
-    resultsContainer.innerHTML = results.map((result, index) => `
+    // Add completion info header
+    const completionInfo = isEarlyFinish ? `
+        <div class="completion-info">
+            <div class="completion-stats">
+                <span class="completion-rate">Dokončeno: ${completionRate}% (${questionsAnswered}/${totalQuestions} otázek)</span>
+                <span class="answered-count">Aktivně zodpovězeno: ${answeredQuestions} otázek</span>
+            </div>
+            <div class="completion-note">
+                Výsledky jsou vypočítány na základě vašich dosavadních odpovědí. 
+                ${answeredQuestions >= 5 ? 'Máte dostatek odpovědí pro reprezentativní výsledky.' : 'Pro přesnější výsledky doporučujeme zodpovědět více otázek.'}
+            </div>
+            <div class="continue-survey-container">
+                <button class="continue-survey-button" onclick="continueSurvey()">
+                    📝 Pokračovat v anketě
+                </button>
+                <span class="continue-note">Můžete dokončit zbývající otázky pro přesnější výsledky</span>
+            </div>
+        </div>
+    ` : `
+        <div class="completion-info">
+            <div class="completion-stats">
+                <span class="completion-rate">✅ Anketa dokončena (${totalQuestions}/${totalQuestions} otázek)</span>
+            </div>
+        </div>
+    `;
+    
+    resultsContainer.innerHTML = completionInfo + results.map((result, index) => `
         <div class="party-result" style="border-left-color: ${result.party.color}">
             <div class="party-rank">${index + 1}.</div>
             <div class="party-info">
@@ -286,10 +353,40 @@ function showResults() {
     resultsSection.style.display = 'block';
     
     // Uložení výsledků
-    localStorage.setItem('quizResults', JSON.stringify(results));
+    const resultData = {
+        results: results,
+        completionRate: completionRate,
+        questionsAnswered: questionsAnswered,
+        answeredQuestions: answeredQuestions,
+        isEarlyFinish: isEarlyFinish,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('quizResults', JSON.stringify(resultData));
     
     // Scroll na začátek výsledků
     resultsSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Continue survey from results (for early finishers)
+function continueSurvey() {
+    // Hide results section
+    document.getElementById('results-section').style.display = 'none';
+    
+    // Show quiz section
+    document.getElementById('quiz-section').style.display = 'block';
+    
+    // Continue from where we left off
+    showQuestion(currentQuestionIndex);
+    updateProgress();
+    
+    // Track continue action (fire and forget)
+    trackEvent('survey_continue', {
+        fromQuestionIndex: currentQuestionIndex,
+        totalQuestions: quizData.questions.length
+    });
+    
+    // Scroll to quiz section
+    document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Restart ankety

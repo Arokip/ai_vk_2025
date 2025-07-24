@@ -1,6 +1,13 @@
 /**
  * Google Apps Script for Volební kalkulačka 2025 - Survey Tracking
  * 
+ * Tracks complete survey lifecycle including early finishes and continues:
+ * - Page loads and user sessions
+ * - Survey starts and completions
+ * - Early finishes with partial data
+ * - Continue actions after early finish
+ * - Detailed completion statistics
+ * 
  * Instructions for setup:
  * 1. Go to script.google.com
  * 2. Create a new project
@@ -12,7 +19,7 @@
  * 6. Copy the Web App URL and use it in your app.js file
  * 
  * The script will automatically create a spreadsheet in your Google Drive
- * named "Volební kalkulačka 2025 - Survey Data"
+ * named "Volební kalkulačka 2025 - Survey Data" with detailed tracking columns
  */
 
 const SPREADSHEET_NAME = "Volební kalkulačka 2025 - Survey Data";
@@ -46,7 +53,11 @@ function getOrCreateSpreadsheet() {
       'All Parties Scores',
       'Session Duration (seconds)',
       'Total Questions',
+      'Questions Answered',
+      'Active Answers',
       'Completion Rate (%)',
+      'Early Finish',
+      'Continue Count',
       'Last Updated'
     ];
     
@@ -94,7 +105,11 @@ function doPost(e) {
         '',                            // All Parties Scores
         '',                            // Session Duration
         data.totalQuestions || '',     // Total Questions
+        '',                            // Questions Answered
+        '',                            // Active Answers
         '',                            // Completion Rate
+        '',                            // Early Finish
+        0,                             // Continue Count
         timestamp                      // Last Updated
       ];
       
@@ -148,8 +163,12 @@ function updateUserRow(sheet, rowIndex, data, timestamp) {
   const COL_ALL_PARTIES = 9;
   const COL_SESSION_DURATION = 10;
   const COL_TOTAL_QUESTIONS = 11;
-  const COL_COMPLETION_RATE = 12;
-  const COL_LAST_UPDATED = 13;
+  const COL_QUESTIONS_ANSWERED = 12;
+  const COL_ACTIVE_ANSWERS = 13;
+  const COL_COMPLETION_RATE = 14;
+  const COL_EARLY_FINISH = 15;
+  const COL_CONTINUE_COUNT = 16;
+  const COL_LAST_UPDATED = 17;
   
   switch (data.eventType) {
     case 'survey_start':
@@ -160,10 +179,14 @@ function updateUserRow(sheet, rowIndex, data, timestamp) {
       break;
       
     case 'survey_complete':
+    case 'survey_early_finish':
       const results = data.results || [];
       const topParty = results.length > 0 ? results[0] : null;
       const completionRate = data.completionRate || 100;
       const sessionDuration = data.sessionDuration || 0;
+      const questionsAnswered = data.questionsAnswered || 0;
+      const activeAnswers = data.answeredQuestions || 0;
+      const isEarlyFinish = data.eventType === 'survey_early_finish' || data.earlyFinish || false;
       
       sheet.getRange(rowIndex, COL_SURVEY_COMPLETED).setValue(timestamp);
       sheet.getRange(rowIndex, COL_FINAL_RESULTS).setValue(JSON.stringify(results));
@@ -171,11 +194,20 @@ function updateUserRow(sheet, rowIndex, data, timestamp) {
       sheet.getRange(rowIndex, COL_TOP_PARTY_SCORE).setValue(topParty ? topParty.percentage : '');
       sheet.getRange(rowIndex, COL_ALL_PARTIES).setValue(JSON.stringify(results.map(r => ({ party: r.party.name, score: r.percentage }))));
       sheet.getRange(rowIndex, COL_SESSION_DURATION).setValue(sessionDuration);
+      sheet.getRange(rowIndex, COL_QUESTIONS_ANSWERED).setValue(questionsAnswered);
+      sheet.getRange(rowIndex, COL_ACTIVE_ANSWERS).setValue(activeAnswers);
       sheet.getRange(rowIndex, COL_COMPLETION_RATE).setValue(completionRate);
+      sheet.getRange(rowIndex, COL_EARLY_FINISH).setValue(isEarlyFinish);
       
       if (data.totalQuestions) {
         sheet.getRange(rowIndex, COL_TOTAL_QUESTIONS).setValue(data.totalQuestions);
       }
+      break;
+      
+    case 'survey_continue':
+      // Update continue count
+      const currentContinueCount = sheet.getRange(rowIndex, COL_CONTINUE_COUNT).getValue() || 0;
+      sheet.getRange(rowIndex, COL_CONTINUE_COUNT).setValue(currentContinueCount + 1);
       break;
   }
   
@@ -224,18 +256,36 @@ function getStats() {
     return { totalEntries: 0, lastUpdate: 'Never' };
   }
   
-  const data = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
+  const data = sheet.getRange(2, 1, lastRow - 1, 17).getValues();
   
   const stats = {
     totalUsers: lastRow - 1,
     uniqueUsers: new Set(data.map(row => row[0])).size,
     surveysStarted: data.filter(row => row[2] && row[2] !== '').length, // Has Survey Started timestamp
     surveysCompleted: data.filter(row => row[3] && row[3] !== '').length, // Has Survey Completed timestamp
-    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[12])))).toISOString() // Last Updated column
+    earlyFinishes: data.filter(row => row[14] === true).length, // Early Finish column
+    fullCompletions: data.filter(row => row[3] && row[3] !== '' && row[14] === false).length,
+    totalContinues: data.reduce((sum, row) => sum + (row[15] || 0), 0), // Continue Count column
+    averageQuestionsAnswered: 0,
+    averageActiveAnswers: 0,
+    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[16])))).toISOString() // Last Updated column (now 17th, 0-indexed 16)
   };
+  
+  // Calculate averages for completed surveys
+  const completedSurveys = data.filter(row => row[3] && row[3] !== '');
+  if (completedSurveys.length > 0) {
+    const totalQuestionsAnswered = completedSurveys.reduce((sum, row) => sum + (row[11] || 0), 0);
+    const totalActiveAnswers = completedSurveys.reduce((sum, row) => sum + (row[12] || 0), 0);
+    
+    stats.averageQuestionsAnswered = Math.round(totalQuestionsAnswered / completedSurveys.length);
+    stats.averageActiveAnswers = Math.round(totalActiveAnswers / completedSurveys.length);
+  }
   
   stats.completionRate = stats.surveysStarted > 0 ? 
     Math.round((stats.surveysCompleted / stats.surveysStarted) * 100) + '%' : '0%';
+    
+  stats.earlyFinishRate = stats.surveysCompleted > 0 ?
+    Math.round((stats.earlyFinishes / stats.surveysCompleted) * 100) + '%' : '0%';
   
   return stats;
 } 
