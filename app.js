@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Načtení dat z JSON souboru
 async function loadQuizData() {
     try {
+        showLoadingIndicator('Načítám data ankety...');
+        
         const response = await fetch('volby2025_dataset.json');
         quizData = await response.json();
         isLoading = false;
@@ -37,11 +39,18 @@ async function loadQuizData() {
         }));
         
         console.log('Data úspěšně načtena:', quizData);
+        
+        // Hide loading indicator after data is loaded
+        hideLoadingIndicator();
+        
     } catch (error) {
         console.error('Chyba při načítání dat:', error);
+        hideLoadingIndicator();
+        
         document.getElementById('intro-section').innerHTML = `
             <h2>Chyba při načítání dat</h2>
             <p>Nepodařilo se načíst data ankety. Zkontrolujte, že je soubor volby2025_dataset.json dostupný.</p>
+            <button class="start-button" onclick="location.reload()">Zkusit znovu</button>
         `;
     }
 }
@@ -49,7 +58,7 @@ async function loadQuizData() {
 // Spuštění ankety
 async function startQuiz() {
     if (isLoading || !quizData) {
-        alert('Data se ještě načítají, chvilku strpení...');
+        showLoadingIndicator('Data se načítají...');
         return;
     }
     
@@ -441,7 +450,7 @@ function generateUserId() {
 /**
  * Show loading indicator
  */
-function showLoadingIndicator(message = 'Ukládám data...') {
+function showLoadingIndicator(message = 'Zpracovávám data...') {
     const indicator = document.getElementById('loading-indicator');
     const text = document.getElementById('loading-text');
     
@@ -472,7 +481,7 @@ async function trackEvent(eventType, additionalData = {}) {
     }
     
     // Show loading indicator with specific message
-    let loadingMessage = 'Ukládám data...';
+    let loadingMessage = 'Zpracovávám data...';
     switch (eventType) {
         case 'page_load':
         case 'restart':
@@ -509,8 +518,10 @@ async function trackEvent(eventType, additionalData = {}) {
         
         console.log(`Event tracked: ${eventType} for user ${userId}`);
         
-        // Small delay to ensure user sees the feedback
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay to ensure user sees the feedback (except for initial load)
+        if (eventType !== 'page_load') {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
         
     } catch (error) {
         console.error('Error tracking event:', error);
