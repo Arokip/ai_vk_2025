@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize user tracking
     initializeUserTracking();
     
-    // Create initial user record (only if new user/session)
-    await trackEvent('page_load');
+    // Create initial user record (only if new user/session) - fire and forget
+    trackEvent('page_load');
     
     await loadQuizData();
 });
@@ -56,41 +56,26 @@ async function loadQuizData() {
 }
 
 // Spuštění ankety
-async function startQuiz() {
+function startQuiz() {
     if (isLoading || !quizData) {
         showLoadingIndicator('Data se načítají...');
         return;
     }
     
-    // Disable button to prevent double clicks
-    const startButton = document.querySelector('.start-button');
-    if (startButton) {
-        startButton.disabled = true;
-        startButton.textContent = 'Zahajuji...';
-    }
+    // Track survey start (fire and forget)
+    surveyStartTime = new Date();
+    trackEvent('survey_start', {
+        sessionStart: surveyStartTime.toISOString(),
+        totalQuestions: quizData.questions.length
+    });
     
-    try {
-        // Track survey start
-        surveyStartTime = new Date();
-        await trackEvent('survey_start', {
-            sessionStart: surveyStartTime.toISOString(),
-            totalQuestions: quizData.questions.length
-        });
-        
-        currentQuestionIndex = 0;
-        document.getElementById('intro-section').style.display = 'none';
-        document.getElementById('quiz-section').style.display = 'block';
-        
-        showQuestion(currentQuestionIndex);
-        updateProgress();
-        
-    } finally {
-        // Re-enable button in case user navigates back
-        if (startButton) {
-            startButton.disabled = false;
-            startButton.textContent = 'Začít anketu';
-        }
-    }
+    // Continue immediately without waiting for tracking
+    currentQuestionIndex = 0;
+    document.getElementById('intro-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'block';
+    
+    showQuestion(currentQuestionIndex);
+    updateProgress();
 }
 
 // Zobrazení konkrétní otázky
@@ -259,114 +244,84 @@ function calculatePartyMatches() {
 }
 
 // Zobrazení výsledků
-async function showResults() {
-    // Disable the next button to prevent double clicks
-    const nextButton = document.getElementById('next-button');
-    if (nextButton) {
-        nextButton.disabled = true;
-        nextButton.textContent = 'Ukládám výsledky...';
-    }
+function showResults() {
+    // Skrytí sekce s otázkami
+    document.getElementById('quiz-section').style.display = 'none';
     
-    try {
-        // Skrytí sekce s otázkami
-        document.getElementById('quiz-section').style.display = 'none';
-        
-        // Výpočet výsledků
-        const results = calculatePartyMatches();
-        
-        // Calculate session duration and completion rate
-        const sessionDuration = surveyStartTime ? 
-            Math.round((new Date() - surveyStartTime) / 1000) : 0;
-        const completionRate = Math.round((currentQuestionIndex + 1) / quizData.questions.length * 100);
-        
-        // Track survey completion
-        await trackEvent('survey_complete', {
-            results: results,
-            sessionDuration: sessionDuration,
-            totalQuestions: quizData.questions.length,
-            completionRate: completionRate
-        });
-        
-        // Zobrazení sekce s výsledky
-        const resultsSection = document.getElementById('results-section');
-        const resultsContainer = document.getElementById('results-container');
-        
-        resultsContainer.innerHTML = results.map((result, index) => `
-            <div class="party-result" style="border-left-color: ${result.party.color}">
-                <div class="party-rank">${index + 1}.</div>
-                <div class="party-info">
-                    <div class="party-name">${result.party.name}</div>
-                    <div class="party-description">${result.party.description}</div>
-                    <div style="font-size: 0.85rem; color: #888; margin-top: 5px;">
-                        Lídr: ${result.party.leader}
-                    </div>
+    // Výpočet výsledků
+    const results = calculatePartyMatches();
+    
+    // Calculate session duration and completion rate
+    const sessionDuration = surveyStartTime ? 
+        Math.round((new Date() - surveyStartTime) / 1000) : 0;
+    const completionRate = Math.round((currentQuestionIndex + 1) / quizData.questions.length * 100);
+    
+    // Track survey completion (fire and forget)
+    trackEvent('survey_complete', {
+        results: results,
+        sessionDuration: sessionDuration,
+        totalQuestions: quizData.questions.length,
+        completionRate: completionRate
+    });
+    
+    // Continue immediately without waiting for tracking
+    // Zobrazení sekce s výsledky
+    const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.getElementById('results-container');
+    
+    resultsContainer.innerHTML = results.map((result, index) => `
+        <div class="party-result" style="border-left-color: ${result.party.color}">
+            <div class="party-rank">${index + 1}.</div>
+            <div class="party-info">
+                <div class="party-name">${result.party.name}</div>
+                <div class="party-description">${result.party.description}</div>
+                <div style="font-size: 0.85rem; color: #888; margin-top: 5px;">
+                    Lídr: ${result.party.leader}
                 </div>
-                <div class="party-score">${result.percentage}%</div>
             </div>
-        `).join('');
-        
-        resultsSection.style.display = 'block';
-        
-        // Uložení výsledků
-        localStorage.setItem('quizResults', JSON.stringify(results));
-        
-        // Scroll na začátek výsledků
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
-        
-    } finally {
-        // Re-enable button (though user won't see this in normal flow)
-        if (nextButton) {
-            nextButton.disabled = false;
-            nextButton.textContent = 'Zobrazit výsledky';
-        }
-    }
+            <div class="party-score">${result.percentage}%</div>
+        </div>
+    `).join('');
+    
+    resultsSection.style.display = 'block';
+    
+    // Uložení výsledků
+    localStorage.setItem('quizResults', JSON.stringify(results));
+    
+    // Scroll na začátek výsledků
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // Restart ankety
-async function restartQuiz() {
-    // Disable restart button to prevent double clicks
-    const restartButton = document.querySelector('.restart-button');
-    if (restartButton) {
-        restartButton.disabled = true;
-        restartButton.textContent = '🔄 Restartuji...';
-    }
+function restartQuiz() {
+    // Vymazání uložených dat
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('quizResults');
     
-    try {
-        // Vymazání uložených dat
-        localStorage.removeItem('userAnswers');
-        localStorage.removeItem('quizResults');
-        
-        // Reset tracking
-        surveyStartTime = null;
-        
-        // Generate new user ID for new session
-        initializeUserTracking();
-        
-        // Track restart (this creates a new record)
-        await trackEvent('restart');
-        
-        // Reset stavu
-        currentQuestionIndex = 0;
-        userAnswers = new Array(quizData.questions.length).fill(null).map(() => ({
-            agreement: 50,
-            importance: 50
-        }));
-        
-        // Zobrazení úvodní sekce
-        document.getElementById('results-section').style.display = 'none';
-        document.getElementById('quiz-section').style.display = 'none';
-        document.getElementById('intro-section').style.display = 'block';
-        
-        // Scroll na začátek
-        document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
-        
-    } finally {
-        // Re-enable restart button
-        if (restartButton) {
-            restartButton.disabled = false;
-            restartButton.textContent = '🔄 Zkusit znovu';
-        }
-    }
+    // Reset tracking
+    surveyStartTime = null;
+    
+    // Generate new user ID for new session
+    initializeUserTracking();
+    
+    // Track restart (this creates a new record) - fire and forget
+    trackEvent('restart');
+    
+    // Continue immediately without waiting for tracking
+    // Reset stavu
+    currentQuestionIndex = 0;
+    userAnswers = new Array(quizData.questions.length).fill(null).map(() => ({
+        agreement: 50,
+        importance: 50
+    }));
+    
+    // Zobrazení úvodní sekce
+    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('intro-section').style.display = 'block';
+    
+    // Scroll na začátek
+    document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Obnovení stavu z localStorage (pokud uživatel obnoví stránku)
@@ -472,63 +427,37 @@ function hideLoadingIndicator() {
 }
 
 /**
- * Track an event to Google Sheets
+ * Track an event to Google Sheets (fire-and-forget, non-blocking)
  */
-async function trackEvent(eventType, additionalData = {}) {
+function trackEvent(eventType, additionalData = {}) {
     if (!TRACKING_API_URL || TRACKING_API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
         console.log('Tracking disabled - no API URL configured');
         return;
     }
     
-    // Show loading indicator with specific message
-    let loadingMessage = 'Zpracovávám data...';
-    switch (eventType) {
-        case 'page_load':
-        case 'restart':
-            loadingMessage = 'Připojuji se...';
-            break;
-        case 'survey_start':
-            loadingMessage = 'Zahajuji anketu...';
-            break;
-        case 'survey_complete':
-            loadingMessage = 'Ukládám výsledky...';
-            break;
-    }
+    // Fire-and-forget - don't await or block the UI
+    const payload = {
+        userId: userId,
+        eventType: eventType,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        ...additionalData
+    };
     
-    showLoadingIndicator(loadingMessage);
-    
-    try {
-        const payload = {
-            userId: userId,
-            eventType: eventType,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            ...additionalData
-        };
-        
-        const response = await fetch(TRACKING_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            mode: 'no-cors' // Required for Google Apps Script
-        });
-        
+    fetch(TRACKING_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        mode: 'no-cors' // Required for Google Apps Script
+    }).then(() => {
         console.log(`Event tracked: ${eventType} for user ${userId}`);
-        
-        // Small delay to ensure user sees the feedback (except for initial load)
-        if (eventType !== 'page_load') {
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-        
-    } catch (error) {
+    }).catch(error => {
         console.error('Error tracking event:', error);
         // Don't throw error to avoid breaking the app
-    } finally {
-        hideLoadingIndicator();
-    }
+    });
 }
 
 
