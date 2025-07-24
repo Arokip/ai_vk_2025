@@ -62,13 +62,44 @@ python3 -m http.server 8000
 ### Varianta 2: Přímé otevření HTML
 Můžete také přímo otevřít soubor `index.html` ve webovém prohlížeči, ale doporučujeme použít lokální server kvůli správnému načítání JSON dat.
 
+## 📊 Google Sheets Tracking (NOVÁ FUNKCIONALITA)
+
+Aplikace nyní automaticky zaznamenává **jeden záznam na uživatele**:
+- ✅ **Vstup uživatele** na stránku s anketou
+- ✅ **Začátek ankety** - kdy uživatel klikne "Začít anketu"  
+- ✅ **Dokončení ankety** - kompletní výsledky uživatele
+- ✅ **Nový záznam** pouze při kliknutí na "Zkusit znovu"
+
+### Struktura dat v Google Sheets (jeden řádek na uživatele)
+- **User ID**: Unikátní identifikátor pro každého uživatele
+- **First Visit**: Kdy uživatel poprvé navštívil stránku
+- **Survey Started**: Kdy začal anketu
+- **Survey Completed**: Kdy dokončil anketu
+- **Final Results**: Kompletní výsledky ankety
+- **Top Party**: Nejlépe vyhovující strana
+- **Session Duration**: Doba trvání ankety (v sekundách)
+- **Completion Rate**: Míra dokončení ankety (%)
+
+### Nastavení trackingu
+Pro aktivaci sledování viz [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)
+
+### Ochrana soukromí
+- Žádné osobní údaje se nesbírají
+- User ID se generuje náhodně
+- Data se ukládají pouze do vašeho Google Drive
+- **Jeden záznam na uživatele** - data se aktualizují v témže řádku
+- **Nový záznam jen při kliknutí na "Zkusit znovu"**
+- User ID se resetuje po 4 hodinách nebo novém dni
+
 ## 📁 Struktura souborů
 
 ```
 volby2025-kalkulacka/
 ├── index.html                 # Hlavní HTML soubor s rozhraním
-├── app.js                    # JavaScript logika aplikace
+├── app.js                    # JavaScript logika aplikace + tracking
 ├── volby2025_dataset.json    # Dataset s otázkami a pozicemi stran
+├── google-apps-script.js     # Kód pro Google Apps Script
+├── SETUP_INSTRUCTIONS.md     # Návod na nastavení Google Sheets
 └── README.md                 # Tento soubor s instrukcemi
 ```
 
@@ -86,6 +117,7 @@ volby2025-kalkulacka/
 - ✅ Detailní výsledky se seznamem stran podle shody
 - ✅ Možnost exportu výsledků (pro debugging)
 - ✅ Restart ankety kdykoliv
+- ✅ **Google Sheets integrace** - automatické logování uživatelských interakcí
 
 ### Kompatibilita
 - Moderní webové prohlížeče (Chrome, Firefox, Safari, Edge)

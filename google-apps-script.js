@@ -36,20 +36,18 @@ function getOrCreateSpreadsheet() {
     
     const headers = [
       'User ID',
-      'Timestamp',
-      'Event Type',
+      'First Visit',
+      'Survey Started',
+      'Survey Completed', 
       'Browser Info',
-      'IP Address',
-      'Question Number',
-      'Agreement %',
-      'Importance %',
       'Final Results',
       'Top Party',
       'Top Party Score',
       'All Parties Scores',
-      'Session Duration',
+      'Session Duration (seconds)',
       'Total Questions',
-      'Completion Rate'
+      'Completion Rate (%)',
+      'Last Updated'
     ];
     
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -77,68 +75,35 @@ function doPost(e) {
     const sheet = spreadsheet.getActiveSheet();
     
     const timestamp = new Date().toISOString();
-    const userAgent = e.parameter.userAgent || 'Unknown';
-    const userIP = getUserIP();
+    const userAgent = data.userAgent || 'Unknown';
     
-    let rowData = [
-      data.userId,
-      timestamp,
-      data.eventType,
-      userAgent,
-      userIP
-    ];
+    // Find existing row for this user
+    const existingRowIndex = findUserRow(sheet, data.userId);
     
-    // Add event-specific data
-    switch (data.eventType) {
-      case 'page_load':
-        rowData = rowData.concat(['', '', '', '', '', '', '', '', '']);
-        break;
-        
-      case 'survey_start':
-        rowData = rowData.concat(['', '', '', '', '', '', data.sessionStart, data.totalQuestions, '']);
-        break;
-        
-      case 'survey_complete':
-        const results = data.results || [];
-        const topParty = results.length > 0 ? results[0] : null;
-        const completionRate = data.completionRate || 100;
-        const sessionDuration = data.sessionDuration || 0;
-        
-        rowData = rowData.concat([
-          '',
-          '',
-          '',
-          JSON.stringify(results),
-          topParty ? topParty.party.name : '',
-          topParty ? topParty.percentage + '%' : '',
-          JSON.stringify(results.map(r => ({ party: r.party.name, score: r.percentage }))),
-          sessionDuration + ' seconds',
-          data.totalQuestions,
-          completionRate + '%'
-        ]);
-        break;
-        
-      case 'question_answer':
-        rowData = rowData.concat([
-          data.questionNumber,
-          data.agreement,
-          data.importance,
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          ''
-        ]);
-        break;
-        
-      default:
-        rowData = rowData.concat(['', '', '', '', '', '', '', '', '']);
+    if (data.eventType === 'restart' || existingRowIndex === -1) {
+      // Create new row for restart or first visit
+      const newRowData = [
+        data.userId,                    // User ID
+        timestamp,                      // First Visit
+        data.eventType === 'survey_start' ? timestamp : '',  // Survey Started
+        '',                            // Survey Completed
+        userAgent,                     // Browser Info
+        '',                            // Final Results
+        '',                            // Top Party
+        '',                            // Top Party Score
+        '',                            // All Parties Scores
+        '',                            // Session Duration
+        data.totalQuestions || '',     // Total Questions
+        '',                            // Completion Rate
+        timestamp                      // Last Updated
+      ];
+      
+      sheet.appendRow(newRowData);
+      
+    } else {
+      // Update existing row
+      updateUserRow(sheet, existingRowIndex, data, timestamp);
     }
-    
-    // Add row to sheet
-    sheet.appendRow(rowData);
     
     return ContentService
       .createTextOutput(JSON.stringify({ success: true, timestamp: timestamp }))
@@ -150,6 +115,72 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ success: false, error: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+/**
+ * Find the row index for a specific user ID
+ */
+function findUserRow(sheet, userId) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return -1;
+  
+  const userIds = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  
+  for (let i = 0; i < userIds.length; i++) {
+    if (userIds[i][0] === userId) {
+      return i + 2; // +2 because getRange is 1-indexed and we started from row 2
+    }
+  }
+  
+  return -1;
+}
+
+/**
+ * Update an existing user row with new data
+ */
+function updateUserRow(sheet, rowIndex, data, timestamp) {
+  // Column indices (1-based)
+  const COL_SURVEY_STARTED = 3;
+  const COL_SURVEY_COMPLETED = 4;
+  const COL_FINAL_RESULTS = 6;
+  const COL_TOP_PARTY = 7;
+  const COL_TOP_PARTY_SCORE = 8;
+  const COL_ALL_PARTIES = 9;
+  const COL_SESSION_DURATION = 10;
+  const COL_TOTAL_QUESTIONS = 11;
+  const COL_COMPLETION_RATE = 12;
+  const COL_LAST_UPDATED = 13;
+  
+  switch (data.eventType) {
+    case 'survey_start':
+      sheet.getRange(rowIndex, COL_SURVEY_STARTED).setValue(timestamp);
+      if (data.totalQuestions) {
+        sheet.getRange(rowIndex, COL_TOTAL_QUESTIONS).setValue(data.totalQuestions);
+      }
+      break;
+      
+    case 'survey_complete':
+      const results = data.results || [];
+      const topParty = results.length > 0 ? results[0] : null;
+      const completionRate = data.completionRate || 100;
+      const sessionDuration = data.sessionDuration || 0;
+      
+      sheet.getRange(rowIndex, COL_SURVEY_COMPLETED).setValue(timestamp);
+      sheet.getRange(rowIndex, COL_FINAL_RESULTS).setValue(JSON.stringify(results));
+      sheet.getRange(rowIndex, COL_TOP_PARTY).setValue(topParty ? topParty.party.name : '');
+      sheet.getRange(rowIndex, COL_TOP_PARTY_SCORE).setValue(topParty ? topParty.percentage : '');
+      sheet.getRange(rowIndex, COL_ALL_PARTIES).setValue(JSON.stringify(results.map(r => ({ party: r.party.name, score: r.percentage }))));
+      sheet.getRange(rowIndex, COL_SESSION_DURATION).setValue(sessionDuration);
+      sheet.getRange(rowIndex, COL_COMPLETION_RATE).setValue(completionRate);
+      
+      if (data.totalQuestions) {
+        sheet.getRange(rowIndex, COL_TOTAL_QUESTIONS).setValue(data.totalQuestions);
+      }
+      break;
+  }
+  
+  // Always update last updated timestamp
+  sheet.getRange(rowIndex, COL_LAST_UPDATED).setValue(timestamp);
 }
 
 /**
@@ -193,15 +224,14 @@ function getStats() {
     return { totalEntries: 0, lastUpdate: 'Never' };
   }
   
-  const data = sheet.getRange(2, 1, lastRow - 1, 15).getValues();
+  const data = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
   
   const stats = {
-    totalEntries: lastRow - 1,
+    totalUsers: lastRow - 1,
     uniqueUsers: new Set(data.map(row => row[0])).size,
-    pageLoads: data.filter(row => row[2] === 'page_load').length,
-    surveysStarted: data.filter(row => row[2] === 'survey_start').length,
-    surveysCompleted: data.filter(row => row[2] === 'survey_complete').length,
-    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[1])))).toISOString()
+    surveysStarted: data.filter(row => row[2] && row[2] !== '').length, // Has Survey Started timestamp
+    surveysCompleted: data.filter(row => row[3] && row[3] !== '').length, // Has Survey Completed timestamp
+    lastUpdate: new Date(Math.max(...data.map(row => new Date(row[12])))).toISOString() // Last Updated column
   };
   
   stats.completionRate = stats.surveysStarted > 0 ? 

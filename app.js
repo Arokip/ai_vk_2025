@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize user tracking
     initializeUserTracking();
     
-    // Log page load
+    // Create initial user record (only if new user/session)
     await trackEvent('page_load');
     
     await loadQuizData();
@@ -293,8 +293,8 @@ async function restartQuiz() {
     // Generate new user ID for new session
     initializeUserTracking();
     
-    // Track page load for restart
-    await trackEvent('page_load');
+    // Track restart (this creates a new record)
+    await trackEvent('restart');
     
     // Reset stavu
     currentQuestionIndex = 0;
@@ -418,7 +418,7 @@ async function trackEvent(eventType, additionalData = {}) {
             mode: 'no-cors' // Required for Google Apps Script
         });
         
-        console.log(`Event tracked: ${eventType}`, payload);
+        console.log(`Event tracked: ${eventType} for user ${userId}`);
         
     } catch (error) {
         console.error('Error tracking event:', error);
@@ -426,16 +426,7 @@ async function trackEvent(eventType, additionalData = {}) {
     }
 }
 
-/**
- * Track when user changes answer on a question
- */
-async function trackQuestionAnswer(questionNumber, agreement, importance) {
-    await trackEvent('question_answer', {
-        questionNumber: questionNumber + 1,
-        agreement: agreement,
-        importance: importance
-    });
-}
+
 
 // Přidání funkce exportu do konzole (pro debugging)
 window.exportResults = exportResults;
