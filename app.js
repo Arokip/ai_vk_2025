@@ -4,8 +4,22 @@ let currentQuestionIndex = 0;
 let userAnswers = [];
 let isLoading = true;
 
+// Tracking variables
+let userId = null;
+let sessionStartTime = null;
+let surveyStartTime = null;
+
+// Google Apps Script Web App URL - REPLACE THIS WITH YOUR ACTUAL URL
+const TRACKING_API_URL = 'https://script.google.com/macros/s/AKfycbwTYvN6ZRJG2Y-V-tNyL5y-zYif1-t-rKcmoV_jr15whoXwOZM2jzq0Inhw6YXI2UeU/exec';
+
 // Načtení dat při startu
 document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize user tracking
+    initializeUserTracking();
+    
+    // Log page load
+    await trackEvent('page_load');
+    
     await loadQuizData();
 });
 
@@ -33,11 +47,18 @@ async function loadQuizData() {
 }
 
 // Spuštění ankety
-function startQuiz() {
+async function startQuiz() {
     if (isLoading || !quizData) {
         alert('Data se ještě načítají, chvilku strpení...');
         return;
     }
+    
+    // Track survey start
+    surveyStartTime = new Date();
+    await trackEvent('survey_start', {
+        sessionStart: surveyStartTime.toISOString(),
+        totalQuestions: quizData.questions.length
+    });
     
     currentQuestionIndex = 0;
     document.getElementById('intro-section').style.display = 'none';
@@ -213,12 +234,25 @@ function calculatePartyMatches() {
 }
 
 // Zobrazení výsledků
-function showResults() {
+async function showResults() {
     // Skrytí sekce s otázkami
     document.getElementById('quiz-section').style.display = 'none';
     
     // Výpočet výsledků
     const results = calculatePartyMatches();
+    
+    // Calculate session duration and completion rate
+    const sessionDuration = surveyStartTime ? 
+        Math.round((new Date() - surveyStartTime) / 1000) : 0;
+    const completionRate = Math.round((currentQuestionIndex + 1) / quizData.questions.length * 100);
+    
+    // Track survey completion
+    await trackEvent('survey_complete', {
+        results: results,
+        sessionDuration: sessionDuration,
+        totalQuestions: quizData.questions.length,
+        completionRate: completionRate
+    });
     
     // Zobrazení sekce s výsledky
     const resultsSection = document.getElementById('results-section');
@@ -248,10 +282,19 @@ function showResults() {
 }
 
 // Restart ankety
-function restartQuiz() {
+async function restartQuiz() {
     // Vymazání uložených dat
     localStorage.removeItem('userAnswers');
     localStorage.removeItem('quizResults');
+    
+    // Reset tracking
+    surveyStartTime = null;
+    
+    // Generate new user ID for new session
+    initializeUserTracking();
+    
+    // Track page load for restart
+    await trackEvent('page_load');
     
     // Reset stavu
     currentQuestionIndex = 0;
@@ -302,9 +345,102 @@ function exportResults() {
     link.click();
 }
 
+// === TRACKING FUNCTIONS ===
+
+/**
+ * Initialize user tracking - generate unique user ID
+ */
+function initializeUserTracking() {
+    sessionStartTime = new Date();
+    
+    // Generate or retrieve user ID
+    let storedUserId = localStorage.getItem('survey_user_id');
+    
+    if (!storedUserId || isNewSession()) {
+        // Generate new user ID
+        userId = generateUserId();
+        localStorage.setItem('survey_user_id', userId);
+        localStorage.setItem('session_start', sessionStartTime.toISOString());
+    } else {
+        userId = storedUserId;
+    }
+}
+
+/**
+ * Check if this is a new session (different day or after 4 hours)
+ */
+function isNewSession() {
+    const lastSession = localStorage.getItem('session_start');
+    if (!lastSession) return true;
+    
+    const lastSessionTime = new Date(lastSession);
+    const hoursDiff = (sessionStartTime - lastSessionTime) / (1000 * 60 * 60);
+    
+    // New session if more than 4 hours ago or different day
+    return hoursDiff > 4 || 
+           lastSessionTime.toDateString() !== sessionStartTime.toDateString();
+}
+
+/**
+ * Generate unique user ID
+ */
+function generateUserId() {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substr(2, 9);
+    return `user_${timestamp}_${random}`;
+}
+
+/**
+ * Track an event to Google Sheets
+ */
+async function trackEvent(eventType, additionalData = {}) {
+    if (!TRACKING_API_URL || TRACKING_API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        console.log('Tracking disabled - no API URL configured');
+        return;
+    }
+    
+    try {
+        const payload = {
+            userId: userId,
+            eventType: eventType,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            ...additionalData
+        };
+        
+        const response = await fetch(TRACKING_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            mode: 'no-cors' // Required for Google Apps Script
+        });
+        
+        console.log(`Event tracked: ${eventType}`, payload);
+        
+    } catch (error) {
+        console.error('Error tracking event:', error);
+        // Don't throw error to avoid breaking the app
+    }
+}
+
+/**
+ * Track when user changes answer on a question
+ */
+async function trackQuestionAnswer(questionNumber, agreement, importance) {
+    await trackEvent('question_answer', {
+        questionNumber: questionNumber + 1,
+        agreement: agreement,
+        importance: importance
+    });
+}
+
 // Přidání funkce exportu do konzole (pro debugging)
 window.exportResults = exportResults;
 window.calculatePartyMatches = calculatePartyMatches;
+window.trackEvent = trackEvent; // For manual testing
 
 // Obnovení stavu při načtení stránky
 document.addEventListener('DOMContentLoaded', restoreState); 
