@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volební kalkulačka 2025 - Parlamentní volby ČR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .intro-section {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(45deg, #f6f8fc, #e9ecef);
+        }
+
+        .intro-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .intro-section p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .quiz-section {
+            display: none;
+            padding: 30px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+
+        .question-header {
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .question-category {
+            color: #764ba2;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .question-explanation {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .answer-section {
+            margin-top: 25px;
+        }
+
+        .answer-group {
+            margin-bottom: 25px;
+        }
+
+        .answer-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .slider-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .slider-value {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prev-button {
+            background: #6c757d;
+            color: white;
+        }
+
+        .prev-button:hover {
+            background: #5a6268;
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .next-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-button:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            display: none;
+            padding: 30px;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-title {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .results-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .party-result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .party-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            width: 40px;
+            flex-shrink: 0;
+        }
+
+        .party-info {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .party-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .party-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .party-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-left: 15px;
+        }
+
+        .restart-button {
+            display: block;
+            margin: 30px auto 0;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-button:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .methodology {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+
+        .methodology h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .methodology p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-card {
+                margin: 10px 0;
+            }
+
+            .intro-section, .quiz-section, .results-section {
+                padding: 20px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .party-result {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .party-rank {
+                width: auto;
+                margin-bottom: 10px;
+            }
+
+            .party-info {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗳️ Volební kalkulačka 2025</h1>
+            <p>Parlamentní volby České republiky • 3. - 4. října 2025</p>
+        </div>
+
+        <div class="main-card">
+            <!-- Úvodní sekce -->
+            <div class="intro-section" id="intro-section">
+                <h2>Zjistěte, která strana vám nejvíce vyhovuje</h2>
+                <p>Odpovězte na 32 otázek o aktuálních politických tématech a zjistěte, které strany nejlépe odpovídají vašim názorům. Anketa je založena na skutečných postojích a programech politických stran.</p>
+                <p><strong>Jak to funguje:</strong> U každé otázky vyjádříte míru souhlasu (0-100%) a důležitost témata pro vás (0-100%). Výsledek zohledňuje oboje.</p>
+                <button class="start-button" onclick="startQuiz()">Začít anketu</button>
+            </div>
+
+            <!-- Sekce s otázkami -->
+            <div class="quiz-section" id="quiz-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+
+                <div id="question-container">
+                    <!-- Otázky se načtou dynamicky -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="nav-button prev-button" id="prev-button" onclick="previousQuestion()" disabled>
+                        ← Předchozí
+                    </button>
+                    <button class="nav-button next-button" id="next-button" onclick="nextQuestion()">
+                        Další →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sekce s výsledky -->
+            <div class="results-section" id="results-section">
+                <div class="results-header">
+                    <h2 class="results-title">Vaše výsledky</h2>
+                    <p class="results-subtitle">Strany seřazené podle shody s vašimi názory</p>
+                </div>
+
+                <div id="results-container">
+                    <!-- Výsledky se načtou dynamically -->
+                </div>
+
+                <button class="restart-button" onclick="restartQuiz()">
+                    🔄 Zkusit znovu
+                </button>
+
+                <div class="methodology">
+                    <h3>Metodika výpočtu</h3>
+                    <p>• Shoda se počítá na základě vzdálenosti vašich odpovědí od pozic jednotlivých stran</p>
+                    <p>• Důležitost témata zvyšuje váhu otázky ve výsledném skóre</p>
+                    <p>• Postoje stran vycházejí z jejich oficiálních programů a veřejných vyjádření</p>
+                    <p>• Výsledky jsou pouze orientační a nenahrazují důkladné prostudování volebních programů</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

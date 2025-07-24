@@ -1,0 +1,310 @@
+// Globální proměnné
+let quizData = null;
+let currentQuestionIndex = 0;
+let userAnswers = [];
+let isLoading = true;
+
+// Načtení dat při startu
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadQuizData();
+});
+
+// Načtení dat z JSON souboru
+async function loadQuizData() {
+    try {
+        const response = await fetch('volby2025_dataset.json');
+        quizData = await response.json();
+        isLoading = false;
+        
+        // Inicializace pole odpovědí
+        userAnswers = new Array(quizData.questions.length).fill(null).map(() => ({
+            agreement: 50,
+            importance: 50
+        }));
+        
+        console.log('Data úspěšně načtena:', quizData);
+    } catch (error) {
+        console.error('Chyba při načítání dat:', error);
+        document.getElementById('intro-section').innerHTML = `
+            <h2>Chyba při načítání dat</h2>
+            <p>Nepodařilo se načíst data ankety. Zkontrolujte, že je soubor volby2025_dataset.json dostupný.</p>
+        `;
+    }
+}
+
+// Spuštění ankety
+function startQuiz() {
+    if (isLoading || !quizData) {
+        alert('Data se ještě načítají, chvilku strpení...');
+        return;
+    }
+    
+    currentQuestionIndex = 0;
+    document.getElementById('intro-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'block';
+    
+    showQuestion(currentQuestionIndex);
+    updateProgress();
+}
+
+// Zobrazení konkrétní otázky
+function showQuestion(index) {
+    const question = quizData.questions[index];
+    const userAnswer = userAnswers[index];
+    
+    const questionContainer = document.getElementById('question-container');
+    questionContainer.innerHTML = `
+        <div class="question-card">
+            <div class="question-header">
+                <div class="question-number">Otázka ${index + 1} z ${quizData.questions.length}</div>
+                <div class="question-category">${question.category}</div>
+                <div class="question-text">${question.question}</div>
+                <div class="question-explanation">${question.explanation}</div>
+            </div>
+            
+            <div class="answer-section">
+                <div class="answer-group">
+                    <label class="answer-label">
+                        Míra souhlasu s tímto tvrzením: 
+                        <span class="slider-value" id="agreement-value">${userAnswer.agreement}%</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" 
+                               class="slider" 
+                               id="agreement-slider"
+                               min="0" 
+                               max="100" 
+                               value="${userAnswer.agreement}"
+                               oninput="updateSliderValue('agreement', this.value)">
+                        <div class="slider-labels">
+                            <span>Silně nesouhlasím (0%)</span>
+                            <span>Neutrální (50%)</span>
+                            <span>Silně souhlasím (100%)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="answer-group">
+                    <label class="answer-label">
+                        Důležitost tohoto témata pro vás:
+                        <span class="slider-value" id="importance-value">${userAnswer.importance}%</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" 
+                               class="slider" 
+                               id="importance-slider"
+                               min="0" 
+                               max="100" 
+                               value="${userAnswer.importance}"
+                               oninput="updateSliderValue('importance', this.value)">
+                        <div class="slider-labels">
+                            <span>Nedůležité (0%)</span>
+                            <span>Středně důležité (50%)</span>
+                            <span>Velmi důležité (100%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Aktualizace navigačních tlačítek
+    updateNavigationButtons();
+}
+
+// Aktualizace hodnoty slideru
+function updateSliderValue(type, value) {
+    const numValue = parseInt(value);
+    userAnswers[currentQuestionIndex][type] = numValue;
+    
+    const valueDisplay = document.getElementById(`${type}-value`);
+    valueDisplay.textContent = `${numValue}%`;
+    
+    // Uložení do localStorage pro případ obnovení stránky
+    localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+}
+
+// Aktualizace progress baru
+function updateProgress() {
+    const progressFill = document.getElementById('progress-fill');
+    const progress = ((currentQuestionIndex + 1) / quizData.questions.length) * 100;
+    progressFill.style.width = `${progress}%`;
+}
+
+// Aktualizace navigačních tlačítek
+function updateNavigationButtons() {
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    
+    prevButton.disabled = currentQuestionIndex === 0;
+    
+    if (currentQuestionIndex === quizData.questions.length - 1) {
+        nextButton.textContent = 'Zobrazit výsledky';
+        nextButton.onclick = showResults;
+    } else {
+        nextButton.textContent = 'Další →';
+        nextButton.onclick = nextQuestion;
+    }
+}
+
+// Přechod na další otázku
+function nextQuestion() {
+    if (currentQuestionIndex < quizData.questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+        updateProgress();
+    }
+}
+
+// Přechod na předchozí otázku
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+        updateProgress();
+    }
+}
+
+// Výpočet shody se stranami
+function calculatePartyMatches() {
+    const partyScores = {};
+    
+    // Inicializace skóre pro všechny strany
+    quizData.parties.forEach(party => {
+        partyScores[party.id] = {
+            party: party,
+            totalScore: 0,
+            maxPossibleScore: 0
+        };
+    });
+    
+    // Výpočet skóre pro každou otázku
+    quizData.questions.forEach((question, questionIndex) => {
+        const userAnswer = userAnswers[questionIndex];
+        const importance = userAnswer.importance / 100; // Normalizace na 0-1
+        
+        Object.keys(question.party_positions).forEach(partyId => {
+            if (partyScores[partyId]) {
+                const partyPosition = question.party_positions[partyId] * 10; // Převod z 1-10 na 0-100
+                const userPosition = userAnswer.agreement;
+                
+                // Výpočet vzdálenosti (čím menší, tím lepší shoda)
+                const distance = Math.abs(userPosition - partyPosition);
+                const maxDistance = 100; // Maximální možná vzdálenost
+                
+                // Převod na skóre (čím menší vzdálenost, tím vyšší skóre)
+                const questionScore = (maxDistance - distance) * importance;
+                const maxQuestionScore = maxDistance * importance;
+                
+                partyScores[partyId].totalScore += questionScore;
+                partyScores[partyId].maxPossibleScore += maxQuestionScore;
+            }
+        });
+    });
+    
+    // Převod na procenta a seřazení
+    const results = Object.values(partyScores).map(item => ({
+        party: item.party,
+        percentage: item.maxPossibleScore > 0 ? 
+            Math.round((item.totalScore / item.maxPossibleScore) * 100) : 0
+    })).sort((a, b) => b.percentage - a.percentage);
+    
+    return results;
+}
+
+// Zobrazení výsledků
+function showResults() {
+    // Skrytí sekce s otázkami
+    document.getElementById('quiz-section').style.display = 'none';
+    
+    // Výpočet výsledků
+    const results = calculatePartyMatches();
+    
+    // Zobrazení sekce s výsledky
+    const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.getElementById('results-container');
+    
+    resultsContainer.innerHTML = results.map((result, index) => `
+        <div class="party-result" style="border-left-color: ${result.party.color}">
+            <div class="party-rank">${index + 1}.</div>
+            <div class="party-info">
+                <div class="party-name">${result.party.name}</div>
+                <div class="party-description">${result.party.description}</div>
+                <div style="font-size: 0.85rem; color: #888; margin-top: 5px;">
+                    Lídr: ${result.party.leader}
+                </div>
+            </div>
+            <div class="party-score">${result.percentage}%</div>
+        </div>
+    `).join('');
+    
+    resultsSection.style.display = 'block';
+    
+    // Uložení výsledků
+    localStorage.setItem('quizResults', JSON.stringify(results));
+    
+    // Scroll na začátek výsledků
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Restart ankety
+function restartQuiz() {
+    // Vymazání uložených dat
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('quizResults');
+    
+    // Reset stavu
+    currentQuestionIndex = 0;
+    userAnswers = new Array(quizData.questions.length).fill(null).map(() => ({
+        agreement: 50,
+        importance: 50
+    }));
+    
+    // Zobrazení úvodní sekce
+    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('intro-section').style.display = 'block';
+    
+    // Scroll na začátek
+    document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Obnovení stavu z localStorage (pokud uživatel obnoví stránku)
+function restoreState() {
+    const savedAnswers = localStorage.getItem('userAnswers');
+    if (savedAnswers) {
+        userAnswers = JSON.parse(savedAnswers);
+    }
+}
+
+// Utility funkce pro formátování procent
+function formatPercentage(value) {
+    return Math.round(value) + '%';
+}
+
+// Export dat pro analýzu (volitelná funkce)
+function exportResults() {
+    if (!userAnswers || !quizData) return;
+    
+    const exportData = {
+        timestamp: new Date().toISOString(),
+        answers: userAnswers,
+        results: calculatePartyMatches(),
+        quiz_version: quizData.metadata
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `volby2025_vysledky_${Date.now()}.json`;
+    link.click();
+}
+
+// Přidání funkce exportu do konzole (pro debugging)
+window.exportResults = exportResults;
+window.calculatePartyMatches = calculatePartyMatches;
+
+// Obnovení stavu při načtení stránky
+document.addEventListener('DOMContentLoaded', restoreState); 

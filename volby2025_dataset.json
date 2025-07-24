@@ -1,0 +1,598 @@
+{
+  "metadata": {
+    "title": "Volební kalkulačka - Parlamentní volby 2025",
+    "description": "Objektivní anketa pro český parlament na základě skutečných postojů a programů politických stran",
+    "election_date": "3. - 4. října 2025",
+    "created": "2025-07-24",
+    "updated": "2025-07-24",
+    "total_questions": 32
+  },
+  "parties": [
+    {
+      "id": "ano",
+      "name": "ANO 2011",
+      "short_name": "ANO",
+      "color": "#1E3A8A",
+      "leader": "Andrej Babiš",
+      "description": "Populistické hnutí zaměřené na praktické řešení problémů občanů",
+      "current_support": "30-32%"
+    },
+    {
+      "id": "spolu",
+      "name": "SPOLU (ODS, TOP 09, KDU-ČSL)",
+      "short_name": "SPOLU",
+      "color": "#2563EB",
+      "leader": "Petr Fiala",
+      "description": "Liberálně-konzervativní koalice prosazující tržní ekonomiku a prozápadní orientaci",
+      "current_support": "20-21%"
+    },
+    {
+      "id": "spd",
+      "name": "SPD + Trikolora + PRO + Svobodní",
+      "short_name": "SPD+",
+      "color": "#DC2626",
+      "leader": "Tomio Okamura",
+      "description": "Národně-konzervativní uskupení s protiimigračním a euroskeptickým programem",
+      "current_support": "12-14%"
+    },
+    {
+      "id": "stan",
+      "name": "Starostové a nezávislí",
+      "short_name": "STAN",
+      "color": "#059669",
+      "leader": "Vít Rakušan",
+      "description": "Středové hnutí zaměřené na regionální rozvoj a transparentnost",
+      "current_support": "9-11%"
+    },
+    {
+      "id": "pirati",
+      "name": "Česká pirátská strana",
+      "short_name": "Piráti",
+      "color": "#7C3AED",
+      "leader": "Zdeněk Hřib",
+      "description": "Liberální strana prosazující digitalizaci a transparentnost",
+      "current_support": "5-7%"
+    },
+    {
+      "id": "stacilo",
+      "name": "Stačilo! (KSČM + SOCDEM + ČSNS + SD-SN)",
+      "short_name": "Stačilo!",
+      "color": "#EF4444",
+      "leader": "Kateřina Konečná",
+      "description": "Levicová koalice prosazující sociální spravedlnost a mírovou politiku",
+      "current_support": "5-7%"
+    },
+    {
+      "id": "motoriste",
+      "name": "Motoristé sobě",
+      "short_name": "Motoristé",
+      "color": "#F59E0B",
+      "leader": "Petr Macinka",
+      "description": "Populistická strana zaměřená na práva řidičů a proti Green Dealu",
+      "current_support": "3-5%"
+    },
+    {
+      "id": "prisaha",
+      "name": "Přísaha",
+      "short_name": "Přísaha",
+      "color": "#6366F1",
+      "leader": "Robert Šlachta",
+      "description": "Protikorupční hnutí založené bývalým policistou, prosazuje spravedlivý střed",
+      "current_support": "2-3%"
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "category": "Evropská unie",
+      "question": "Česká republika by měla přijmout euro jako společnou evropskou měnu",
+      "explanation": "Euro by zjednodušilo obchod a cestování, ale Česko by ztratilo kontrolu nad svou měnovou politikou",
+      "party_positions": {
+        "ano": 4,
+        "spolu": 6,
+        "spd": 2,
+        "stan": 6,
+        "pirati": 7,
+        "stacilo": 3,
+        "motoriste": 3,
+        "prisaha": 3
+      }
+    },
+    {
+      "id": 2,
+      "category": "Migrace",
+      "question": "Česká republika by měla přijímat více migrantů na základě evropských kvót",
+      "explanation": "EU navrhuje povinné kvóty pro rozdělení migrantů mezi členské státy",
+      "party_positions": {
+        "ano": 3,
+        "spolu": 5,
+        "spd": 1,
+        "stan": 5,
+        "pirati": 7,
+        "stacilo": 6,
+        "motoriste": 2,
+        "prisaha": 2
+      }
+    },
+    {
+      "id": 3,
+      "category": "Ekonomika",
+      "question": "Stát by měl výrazně zvýšit daně velkým korporacím a bohatým",
+      "explanation": "Vyšší daně by mohly zajistit více peněz pro veřejné služby, ale mohou odrazovat investory",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 3,
+        "spd": 5,
+        "stan": 4,
+        "pirati": 6,
+        "stacilo": 8,
+        "motoriste": 4,
+        "prisaha": 5
+      }
+    },
+    {
+      "id": 4,
+      "category": "Klimatická změna",
+      "question": "ČR by měla rychle ukončit používání uhlí a přejít na obnovitelné zdroje energie",
+      "explanation": "Rychlý přechod k obnovitelným zdrojům může pomoci klimatu, ale může být ekonomicky nákladný",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 6,
+        "spd": 3,
+        "stan": 7,
+        "pirati": 8,
+        "stacilo": 6,
+        "motoriste": 2,
+        "prisaha": 5
+      }
+    },
+    {
+      "id": 5,
+      "category": "Sociální politika",
+      "question": "Státní důchody by měly být výrazně zvýšeny na úkor státního rozpočtu",
+      "explanation": "Vyšší důchody zlepší život seniorů, ale mohou zvýšit státní dluh",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 4,
+        "spd": 6,
+        "stan": 5,
+        "pirati": 5,
+        "stacilo": 8,
+        "motoriste": 6,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 6,
+      "category": "Bezpečnost",
+      "question": "Česká republika by měla zůstat členem NATO za každou cenu",
+      "explanation": "NATO poskytuje bezpečnostní záruky, ale omezuje možnosti nezávislé zahraniční politiky",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 9,
+        "spd": 3,
+        "stan": 8,
+        "pirati": 7,
+        "stacilo": 2,
+        "motoriste": 4,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 7,
+      "category": "Zdravotnictví",
+      "question": "Zdravotní péče by měla zůstat veřejná, soukromé kliniky by měly být omezeny",
+      "explanation": "Veřejné zdravotnictví zajišťuje rovný přístup, soukromé může být efektivnější",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 4,
+        "spd": 6,
+        "stan": 5,
+        "pirati": 6,
+        "stacilo": 8,
+        "motoriste": 5,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 8,
+      "category": "Digitalizace",
+      "question": "Stát by měl masivně investovat do digitalizace a elektronického vládnutí",
+      "explanation": "Digitalizace může zefektivnit státní správu, ale vyžaduje vysoké investice",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 7,
+        "spd": 4,
+        "stan": 7,
+        "pirati": 9,
+        "stacilo": 5,
+        "motoriste": 5,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 9,
+      "category": "Vzdělání",
+      "question": "Vysokoškolské vzdělání by mělo být kompletně bezplatné včetně ubytování",
+      "explanation": "Bezplatné vysoké školy zvyšují dostupnost vzdělání, ale zatěžují státní rozpočet",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 4,
+        "spd": 5,
+        "stan": 5,
+        "pirati": 7,
+        "stacilo": 8,
+        "motoriste": 5,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 10,
+      "category": "Transparentnost",
+      "question": "Všichni politici by měli povinně zveřejňovat svůj majetek a příjmy",
+      "explanation": "Transparentnost může snížit korupci, ale omezuje soukromí politiků",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 7,
+        "spd": 6,
+        "stan": 8,
+        "pirati": 9,
+        "stacilo": 7,
+        "motoriste": 6,
+        "prisaha": 9
+      }
+    },
+    {
+      "id": 11,
+      "category": "Ekonomika",
+      "question": "Minimální mzda by měla být výrazně zvýšena i za cenu možné ztráty pracovních míst",
+      "explanation": "Vyšší minimální mzda zlepší životní úroveň, ale může snížit konkurenceschopnost firem",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 3,
+        "spd": 5,
+        "stan": 4,
+        "pirati": 6,
+        "stacilo": 8,
+        "motoriste": 5,
+        "prisaha": 5
+      }
+    },
+    {
+      "id": 12,
+      "category": "Obrana",
+      "question": "Výdaje na obranu by měly dosáhnout 2% HDP podle požadavků NATO",
+      "explanation": "Vyšší výdaje na obranu posilují bezpečnost, ale omezují prostředky na jiné oblasti",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 8,
+        "spd": 4,
+        "stan": 7,
+        "pirati": 4,
+        "stacilo": 2,
+        "motoriste": 4,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 13,
+      "category": "Zahraniční politika",
+      "question": "Česká republika by měla nadále vojensky a finančně podporovat Ukrajinu v boji proti Rusku",
+      "explanation": "Podpora Ukrajiny může pomoci demokracii, ale zvyšuje náklady a riziko konfliktu",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 8,
+        "spd": 2,
+        "stan": 8,
+        "pirati": 7,
+        "stacilo": 3,
+        "motoriste": 3,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 14,
+      "category": "Sociální politika",
+      "question": "Rodičovský příspěvek by měl být prodloužen na 4 roky s vyšší částkou",
+      "explanation": "Delší rodičovská dovolená umožní lepší péči o děti, ale zvýší náklady státu",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 5,
+        "spd": 7,
+        "stan": 6,
+        "pirati": 6,
+        "stacilo": 8,
+        "motoriste": 6,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 15,
+      "category": "Spravedlnost",
+      "question": "Exekutoři by měli být zrušeni a jejich práci by měl převzít stát",
+      "explanation": "Státní exekuce může být spravedlivější, ale může být méně efektivní",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 3,
+        "spd": 7,
+        "stan": 4,
+        "pirati": 5,
+        "stacilo": 8,
+        "motoriste": 7,
+        "prisaha": 8
+      }
+    },
+    {
+      "id": 16,
+      "category": "Životní prostředí",
+      "question": "Česká republika by měla stavět nové jaderné reaktory místo obnovitelných zdrojů",
+      "explanation": "Jaderná energie je spolehlivější než obnovitelné zdroje, ale má bezpečnostní rizika",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 7,
+        "spd": 5,
+        "stan": 6,
+        "pirati": 4,
+        "stacilo": 3,
+        "motoriste": 6,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 17,
+      "category": "Zahraniční politika",
+      "question": "ČR by měla mít silnější vztahy s Ruskem navzdory současným napětím",
+      "explanation": "Lepší vztahy s Ruskem mohou přinést ekonomické výhody, ale mohou ohrozit vztahy se Západem",
+      "party_positions": {
+        "ano": 4,
+        "spolu": 2,
+        "spd": 6,
+        "stan": 2,
+        "pirati": 2,
+        "stacilo": 5,
+        "motoriste": 5,
+        "prisaha": 3
+      }
+    },
+    {
+      "id": 18,
+      "category": "Bydlení",
+      "question": "Stát by měl postavit 100 000 nových obecních bytů pro mladé rodiny",
+      "explanation": "Obecní byty by snížily náklady na bydlení, ale vyžadují vysoké státní investice",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 4,
+        "spd": 6,
+        "stan": 6,
+        "pirati": 7,
+        "stacilo": 8,
+        "motoriste": 5,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 19,
+      "category": "Korupce",
+      "question": "Promlčení by mělo být zrušeno u trestných činů korupce",
+      "explanation": "Zrušení promlčení umožní stíhat starou korupci, ale může být právně problematické",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 7,
+        "spd": 8,
+        "stan": 8,
+        "pirati": 8,
+        "stacilo": 7,
+        "motoriste": 7,
+        "prisaha": 9
+      }
+    },
+    {
+      "id": 20,
+      "category": "Technologie",
+      "question": "Umělá inteligence by měla být přísně regulována ze strany státu",
+      "explanation": "Regulace AI může zabránit zneužití, ale může brzdit inovace",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 6,
+        "spd": 7,
+        "stan": 6,
+        "pirati": 4,
+        "stacilo": 6,
+        "motoriste": 5,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 21,
+      "category": "Sociální politika",
+      "question": "Manželství pro všechny páry stejného pohlaví by mělo být legalizováno",
+      "explanation": "Rovnoprávnost všech párů posiluje lidská práva, ale může narážet na tradiční hodnoty",
+      "party_positions": {
+        "ano": 4,
+        "spolu": 3,
+        "spd": 1,
+        "stan": 6,
+        "pirati": 9,
+        "stacilo": 6,
+        "motoriste": 2,
+        "prisaha": 4
+      }
+    },
+    {
+      "id": 22,
+      "category": "Drogy",
+      "question": "Legalizace pěstování a držení konopí pro osobní potřebu je správná cesta",
+      "explanation": "Legalizace může snížit kriminalitu a přinést daňové příjmy, ale může zvýšit užívání drog",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 4,
+        "spd": 2,
+        "stan": 5,
+        "pirati": 8,
+        "stacilo": 6,
+        "motoriste": 4,
+        "prisaha": 4
+      }
+    },
+    {
+      "id": 23,
+      "category": "Demokracie",
+      "question": "Referendum by mělo být povoleno u všech důležitých rozhodnutí včetně EU",
+      "explanation": "Referenda posílí demokracii, ale mohou vést k populistickým rozhodnutím",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 4,
+        "spd": 8,
+        "stan": 5,
+        "pirati": 7,
+        "stacilo": 6,
+        "motoriste": 7,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 24,
+      "category": "Právo",
+      "question": "Tresty za krádeže a loupeže by měly být výrazně zpřísněny",
+      "explanation": "Tvrdší tresty mohou odradit od kriminality, ale nemusí řešit příčiny zločinu",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 6,
+        "spd": 8,
+        "stan": 5,
+        "pirati": 4,
+        "stacilo": 5,
+        "motoriste": 7,
+        "prisaha": 8
+      }
+    },
+    {
+      "id": 25,
+      "category": "Ekonomika",
+      "question": "Elektronická evidence tržeb (EET) by měla být definitivně zrušena",
+      "explanation": "Zrušení EET sníží administrativní zátěž, ale může snížit výběr daní",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 6,
+        "spd": 8,
+        "stan": 5,
+        "pirati": 6,
+        "stacilo": 4,
+        "motoriste": 8,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 26,
+      "category": "Práce",
+      "question": "Státní zaměstnanci by měli mít povinně kratší pracovní týden (4 dny)",
+      "explanation": "Kratší pracovní týden může zvýšit produktivitu, ale může snížit výkonnost státu",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 3,
+        "spd": 4,
+        "stan": 4,
+        "pirati": 7,
+        "stacilo": 7,
+        "motoriste": 5,
+        "prisaha": 4
+      }
+    },
+    {
+      "id": 27,
+      "category": "Transparentnost",
+      "question": "Whistlebloweři (oznamovatelé korupce) by měli mít silnější právní ochranu",
+      "explanation": "Ochrana oznamovatelů může odhalit korupci, ale může být zneužita k pomstě",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 7,
+        "spd": 5,
+        "stan": 8,
+        "pirati": 9,
+        "stacilo": 7,
+        "motoriste": 6,
+        "prisaha": 9
+      }
+    },
+    {
+      "id": 28,
+      "category": "Green Deal",
+      "question": "Česká republika by měla odmítnout evropský Green Deal a jeho klimatická opatření",
+      "explanation": "Odmítnutí Green Dealu může chránit české hospodářství, ale izoluje nás v EU",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 3,
+        "spd": 8,
+        "stan": 4,
+        "pirati": 2,
+        "stacilo": 5,
+        "motoriste": 9,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 29,
+      "category": "Bankovnictví",
+      "question": "Banky by měly platit zvláštní windfall tax z nadměrných zisků",
+      "explanation": "Bankovní daň by přinesla příjmy státu, ale může snížit konkurenceschopnost sektoru",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 4,
+        "spd": 6,
+        "stan": 5,
+        "pirati": 6,
+        "stacilo": 8,
+        "motoriste": 6,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 30,
+      "category": "Domácí násilí",
+      "question": "Definice domácího násilí by měla být rozšířena a sankce zpřísněny",
+      "explanation": "Širší definice ochrání více obětí, ale může vést k zneužívání obvinění",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 7,
+        "spd": 5,
+        "stan": 8,
+        "pirati": 8,
+        "stacilo": 7,
+        "motoriste": 5,
+        "prisaha": 8
+      }
+    },
+    {
+      "id": 31,
+      "category": "Důchody",
+      "question": "Důchodový věk by měl být zastaven na 65 letech pro všechny",
+      "explanation": "Zastavení růstu důchodového věku pomůže pracujícím, ale může ohrozit udržitelnost systému",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 3,
+        "spd": 7,
+        "stan": 4,
+        "pirati": 5,
+        "stacilo": 8,
+        "motoriste": 7,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 32,
+      "category": "Alternativní tresty",
+      "question": "Místo vězení by se měly častěji ukládat peněžité tresty a obecně prospěšné práce",
+      "explanation": "Alternativní tresty mohou být účinnější a levnější, ale mohou být vnímány jako měkké",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 6,
+        "spd": 4,
+        "stan": 7,
+        "pirati": 8,
+        "stacilo": 7,
+        "motoriste": 5,
+        "prisaha": 7
+      }
+    }
+  ]
+} 
