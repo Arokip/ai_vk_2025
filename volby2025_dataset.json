@@ -5,7 +5,7 @@
     "election_date": "3. - 4. října 2025",
     "created": "2025-07-24",
     "updated": "2025-07-24",
-    "total_questions": 32
+    "total_questions": 40
   },
   "parties": [
     {
@@ -592,6 +592,134 @@
         "stacilo": 7,
         "motoriste": 5,
         "prisaha": 7
+      }
+    },
+    {
+      "id": 33,
+      "category": "Bezpečnost",
+      "question": "Česká republika by měla aktivně budovat vlastní obranný průmysl a exportovat zbraně",
+      "explanation": "Vlastní zbrojní průmysl posiluje bezpečnost a ekonomiku, ale může nás vtáhnout do konfliktů",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 8,
+        "spd": 7,
+        "stan": 7,
+        "pirati": 3,
+        "stacilo": 2,
+        "motoriste": 8,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 34,
+      "category": "Energetika",
+      "question": "Státní energetické společnosti by měly zůstat v českých rukou a neměly by být privatizovány",
+      "explanation": "Státní kontrola zajišťuje energetickou bezpečnost, ale může být méně efektivní",
+      "party_positions": {
+        "ano": 8,
+        "spolu": 7,
+        "spd": 9,
+        "stan": 6,
+        "pirati": 5,
+        "stacilo": 9,
+        "motoriste": 8,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 35,
+      "category": "Migrace",
+      "question": "ČR by měla přijímat pouze vysoce kvalifikované pracovníky ze třetích zemí",
+      "explanation": "Kvalifikovaní pracovníci pomohou ekonomice, ale může to omezit humanitární pomoc",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 8,
+        "spd": 9,
+        "stan": 7,
+        "pirati": 3,
+        "stacilo": 4,
+        "motoriste": 9,
+        "prisaha": 8
+      }
+    },
+    {
+      "id": 36,
+      "category": "Podnikání",
+      "question": "Malé a střední podniky by měly mít výrazně nižší daňové zatížení než velké korporace",
+      "explanation": "Podpora MSP vytváří pracovní místa, ale může snížit příjmy státu",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 9,
+        "spd": 8,
+        "stan": 8,
+        "pirati": 4,
+        "stacilo": 5,
+        "motoriste": 9,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 37,
+      "category": "Suverenita",
+      "question": "Národní parlamenty by měly mít právo vetovat rozhodnutí Evropské unie",
+      "explanation": "Národní veto chrání suverenitu, ale může blokovat potřebné evropské reformy",
+      "party_positions": {
+        "ano": 8,
+        "spolu": 6,
+        "spd": 9,
+        "stan": 5,
+        "pirati": 2,
+        "stacilo": 7,
+        "motoriste": 9,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 38,
+      "category": "Rodina",
+      "question": "Tradiční rodina by měla být prioritou státní rodinné politiky",
+      "explanation": "Tradiční hodnoty poskytují stabilitu, ale mohou diskriminovat netradiční formy soužití",
+      "party_positions": {
+        "ano": 6,
+        "spolu": 8,
+        "spd": 9,
+        "stan": 5,
+        "pirati": 2,
+        "stacilo": 6,
+        "motoriste": 8,
+        "prisaha": 7
+      }
+    },
+    {
+      "id": 39,
+      "category": "Kontrola státu",
+      "question": "Státní regulace podnikání by měla být výrazně snížena ve prospěch volného trhu",
+      "explanation": "Volný trh podporuje inovace a růst, ale může vést k sociálním nerovnostem",
+      "party_positions": {
+        "ano": 5,
+        "spolu": 8,
+        "spd": 6,
+        "stan": 7,
+        "pirati": 3,
+        "stacilo": 2,
+        "motoriste": 9,
+        "prisaha": 6
+      }
+    },
+    {
+      "id": 40,
+      "category": "Kultura",
+      "question": "Stát by měl aktivně chránit českou kulturu a jazyk před zahraniční dominancí",
+      "explanation": "Ochrana kultury posiluje národní identitu, ale může omezovat mezinárodní spolupráci",
+      "party_positions": {
+        "ano": 7,
+        "spolu": 7,
+        "spd": 9,
+        "stan": 5,
+        "pirati": 3,
+        "stacilo": 6,
+        "motoriste": 8,
+        "prisaha": 6
       }
     }
   ]
