@@ -223,23 +223,33 @@ function calculatePartyMatches() {
     // Only calculate for questions that have been seen (up to current index + 1)
     const questionsToCalculate = Math.min(currentQuestionIndex + 1, quizData.questions.length);
     
-    // Výpočet skóre pro každou otázku
+    // Calculate scores using fair formula
     quizData.questions.slice(0, questionsToCalculate).forEach((question, questionIndex) => {
         const userAnswer = userAnswers[questionIndex];
-        const importance = userAnswer.importance / 100; // Normalizace na 0-1
+        const userAgreement = userAnswer.agreement; // 0-100
+        const importance = userAnswer.importance / 100; // 0-1
         
         Object.keys(question.party_positions).forEach(partyId => {
             if (partyScores[partyId]) {
-                const partyPosition = question.party_positions[partyId] * 10; // Převod z 1-10 na 0-100
-                const userPosition = userAnswer.agreement;
+                const partyPosition = question.party_positions[partyId] * 10; // Convert 1-10 to 0-100
                 
-                // Výpočet vzdálenosti (čím menší, tím lepší shoda)
-                const distance = Math.abs(userPosition - partyPosition);
-                const maxDistance = 100; // Maximální možná vzdálenost
+                let matchScore;
                 
-                // Převod na skóre (čím menší vzdálenost, tím vyšší skóre)
-                const questionScore = (maxDistance - distance) * importance;
-                const maxQuestionScore = maxDistance * importance;
+                if (userAgreement === 50) {
+                    // Neutral answer: all parties get exactly 50% regardless of their position
+                    matchScore = 50;
+                } else {
+                    // Non-neutral answer: calculate based on distance from party position
+                    const distance = Math.abs(userAgreement - partyPosition);
+                    const maxDistance = 50; // Maximum distance from center (50) to edge (0 or 100)
+                    
+                    // Convert distance to score: 0 distance = 100%, max distance = 0%
+                    matchScore = Math.max(0, 100 - (distance / maxDistance * 100));
+                }
+                
+                // Apply importance weighting
+                const questionScore = matchScore * importance;
+                const maxQuestionScore = 100 * importance; // Perfect match = 100%
                 
                 partyScores[partyId].totalScore += questionScore;
                 partyScores[partyId].maxPossibleScore += maxQuestionScore;
