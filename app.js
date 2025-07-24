@@ -533,10 +533,43 @@ async function trackEvent(eventType, additionalData = {}) {
 
 
 
+// === AI DISCLOSURE FUNCTIONS ===
+
+/**
+ * Show AI disclosure modal
+ */
+function showAiDisclosure() {
+    const modal = document.getElementById('ai-modal');
+    if (modal) {
+        modal.classList.add('show');
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Hide AI disclosure modal
+ */
+function hideAiDisclosure(event) {
+    // If event is provided, check if clicked outside modal content
+    if (event && event.target !== event.currentTarget) {
+        return;
+    }
+    
+    const modal = document.getElementById('ai-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+}
+
 // Přidání funkce exportu do konzole (pro debugging)
 window.exportResults = exportResults;
 window.calculatePartyMatches = calculatePartyMatches;
 window.trackEvent = trackEvent; // For manual testing
+window.showAiDisclosure = showAiDisclosure; // For manual testing
+window.hideAiDisclosure = hideAiDisclosure; // For manual testing
 
 // Obnovení stavu při načtení stránky
 document.addEventListener('DOMContentLoaded', restoreState); 
